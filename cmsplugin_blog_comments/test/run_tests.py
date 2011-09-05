@@ -25,7 +25,7 @@ def run_tests():
     settings.configure(
         INSTALLED_APPS=[
             'cmsplugin_blog.test.testapp',
-            'cmsplugin_blog.test.commentstestapp',
+            'cmsplugin_blog_comments.test.commentstestapp',
             'threadedcomments',
             'django.contrib.auth',
             'django.contrib.contenttypes',
