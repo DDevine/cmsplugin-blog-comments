@@ -12,6 +12,10 @@ from cmsplugin_blog.tests import SettingsOverride
 class BlogCommetsTestCase(BaseBlogTestCase):
     
     def test_01_template_override(self):
+        
+        from django.utils.translation import activate
+        activate('en')
+        
         user = User.objects.all()[0]
         
         published_at = datetime.datetime.now() - datetime.timedelta(hours=1)
