@@ -16,5 +16,6 @@ urlpatterns += patterns('',
             'blogentries': BlogSitemap
         }
     }),
+    url(r'^comments/', include('django.contrib.comments.urls')),
     url(r'^', include('cms.urls'))
 )

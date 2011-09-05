@@ -1,3 +1,4 @@
+django-sekizai
 django-cms
 coverage
 unittest-xml-reporting==1.2

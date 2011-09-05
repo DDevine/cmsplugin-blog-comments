@@ -26,6 +26,7 @@ def run_tests():
         INSTALLED_APPS=[
             'cmsplugin_blog.test.testapp',
             'cmsplugin_blog_comments.test.commentstestapp',
+            'django.contrib.comments',
             'threadedcomments',
             'django.contrib.auth',
             'django.contrib.contenttypes',
@@ -42,7 +43,8 @@ def run_tests():
             'cmsplugin_blog',
             'cmsplugin_blog_comments',
             'staticfiles',
-            'djangocms_utils'
+            'djangocms_utils',
+            'sekizai'
         ],
         COMMENTS_APP = 'threadedcomments',
         MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES,

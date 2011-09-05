@@ -1,5 +1,7 @@
 #!/bin/bash
 
+find . -name '*.pyc' -delete
+
 args=("$@")
 num_args=${#args[@]}
 index=0
