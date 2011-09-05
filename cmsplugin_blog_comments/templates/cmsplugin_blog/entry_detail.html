@@ -1,0 +1,205 @@
+{% extends "cmsplugin_blog/cmsplugin_blog_base.html" %}
+
+{% load i18n placeholder_tags cmsplugin_blog_tags simple_translation_tags comments threadedcomments_tags sekizai_tags adminmedia  %}
+
+{% block left-col %}
+
+  {{ block.super }}
+
+  {% with object|get_preferred_translation_from_request:request as title %}
+    <h1>{{ title }}</h1>
+    
+    <p class="date"><span>{{ object.pub_date|date:"d F Y" }}</span></p>
+    
+    {% with object.placeholders|choose_placeholder:"content" as content %}
+        {% render_placeholder content %}
+    {% endwith %}
+
+  {% addtoblock "css" %}
+  <style type="text/css">
+  
+    div.comment-form-threaded { display: none; }
+  
+    form.commentform {
+        border-bottom: solid 1px #dddddd;
+        background: url('formfade.png') bottom left repeat-x;
+    }
+    
+    form.commentform em { color: red; }
+    
+    form.commentform fieldset {
+        border: none;
+    }
+    
+    form.commentform legend {
+        font-weight:normal;
+    	font-family:Verdana;
+    }
+    
+    form.commentform input, form.commentform select, form.commentform textarea {
+        font-weight:normal;
+    	font-family:Verdana;
+    }
+    
+    form.commentform dl, dl.labels {
+    	margin:0em;
+    	font-size:100%;
+    	margin-top:0.5em
+    }
+    form.commentform dt, dl.labels dt {
+    	float:left;
+    	clear:left;
+    	width:10em;
+    	margin: 0 0 0.8em 0;
+    	color:#555;
+    	text-align:right;
+    	font-weight:normal;
+    	font-family:Verdana;
+    	border-top: solid 1px #dddddd;
+    	position:relative; /*IEWin hack*/
+    	padding-top: 0.2em;
+    }
+    form.commentform dd, dl.labels dd {
+    	clear:right;
+    	margin: 0 0 0.8em 10em;
+    	font-size:100%;
+    	font-style:normal;
+    	font-weight:normal;
+    	font-family:Verdana;
+    	border-top: solid 1px #dddddd;
+    	padding-top: 0.2em;
+    	padding-left: 0.5em;
+    }
+    form.commentform dt.submit, form.commentform dd.submit, dl.labels dd.submit	{
+    	margin: 2em 0 0.8em 0;
+    	border: none;
+    }  
+     .attention { color: red;}
+  </style>
+  {% endaddtoblock %}
+  
+  {% addtoblock "js" %}<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.min.js"></script>{% endaddtoblock %}
+  
+  {% addtoblock "js" %}
+  <script type="text/javascript">
+  //<![CDATA[
+  function display_comment_form(id_of_form) {
+      jQuery('#'+id_of_form).slideDown()
+  }
+  //]]>
+  </script>
+  {% endaddtoblock %}
+  
+  <h2>{% trans "Comments" %}</h2>
+  {% if title.comments_closed %}
+     <p class="attention">{% trans "Comments are closed. You cannot post new comments." %}</p>
+  {% endif %}  
+  {% if title.comments_under_moderation %}
+     <p class="attention">{% trans "Comments are under moderation. Comment will be visible after approval." %}</p>
+  {% endif %}  
+ 
+  {% get_comment_list for title as comments_list %}
+  
+  {% for comment in comments_list|fill_tree|annotate_tree %}
+  
+  {% if not comment.open  %}
+      </div>
+  {% endif %}
+      
+  <div {% if forloop.last %}id="clast"{% else %}id="c{{ comment.pk }}"{% endif %} class="comment {% if comment.depth != 1 %}indent {% endif %}{% cycle 'row1' 'row2' %}">
+  
+  <p class="comment-title">{{ comment.title }}</p>
+  {{ comment.comment|linebreaks }} 
+  
+  {% if not title.comments_closed %}
+  <p><a href="#" onclick="display_comment_form('comment-form-{{ comment.pk }}'); return false">{% trans "Reply" %}</a></p>
+  {% endif %}
+  
+{% if not title.comments_closed %}
+  <div class="comment-form-threaded" id="comment-form-{{ comment.pk }}">
+  {% get_comment_form for title as comment_form with comment.pk %}
+  <form method="POST" action="{% comment_form_target %}" class="commentform">
+  <fieldset>
+  <legend>{% trans "Reply to this comment" %} </legend>    
+  {% csrf_token %}
+  <dl>
+      {% for field in comment_form.visible_fields %}
+      {% if field.name != "honeypot" %}
+      <dt class="{% if field.errors %}errors {% endif %}">{% if field.field.required %}<em>*</em>{% endif %} {{ field.label_tag }}</dt>
+      <dd class="{% if field.errors %}errors {% endif %}">
+              {% if forloop.first %}
+                  {% for hidden in comment_form.hidden_fields %}
+                  {{ hidden }}
+                  {% endfor %}
+                  <input type="hidden" name="next" value="{{ title.get_absolute_url }}#c{{ comment.pk }}" />
+              {% endif %}
+              {{ field }}{{ field.errors }}
+      </dd>
+      {% endif %}
+      {% endfor %}
+      <dt></dt>
+      <dd>{% trans "All fields with <em>*</em> are required." %}</dd>
+      <dt class="submit"></dt>
+      <dd class="submit {% if comment_form.non_field_errors %}errors{% endif %}">{{ comment_form.honepot }} {{ comment_form.non_field_errors }}
+          <input type="submit" name="post" class="submit-post" value="{% trans "Post" %}" />
+  	    <input type="submit" name="preview" class="submit-preview" value="{% trans "Preview" %}" /></dd>
+  </dl>
+  </fieldset>
+  </form>
+
+{% endif %}
+  </div>
+  
+  {% for close in comment.close %}
+      </div>
+  {% endfor %}
+  
+  {% endfor %}
+ 
+  {% if not title.comments_closed %} 
+  <h2>{% trans "Comment on this blogpost" %}</h2>
+  
+  {% get_comment_form for title as comment_form %}
+  <form method="POST" action="{% comment_form_target %}" class="commentform">
+  <fieldset>
+  <legend>{% trans "Post a comment" %}</legend>      
+  {% csrf_token %}
+  <dl>
+      {% for field in comment_form.visible_fields %}
+      {% if field.name != "honeypot" %}
+      <dt class="{% if field.errors %}errors {% endif %}">{% if field.field.required %}<em>*</em>{% endif %} {{ field.label_tag }}</dt>
+      <dd class="{% if field.errors %}errors {% endif %}">
+              {% if forloop.first %}
+                  {% for hidden in comment_form.hidden_fields %}
+                  {{ hidden }}
+                  {% endfor %}
+                  <input type="hidden" name="next" value="{{ title.get_absolute_url }}#clast" />
+              {% endif %}
+              {{ field }}{{ field.errors }}
+      </dd>
+      {% endif %}
+      {% endfor %}
+      <dt></dt>
+      <dd>{% trans "All fields with <em>*</em> are required." %}</dd>
+      <dt class="submit"></dt>
+      <dd class="submit {% if comment_form.non_field_errors %}errors{% endif %}">{{ comment_form.honepot }} {{ comment_form.non_field_errors }}
+          <input type="submit" name="post" class="submit-post" value="{% trans "Post" %}" />
+  	    <input type="submit" name="preview" class="submit-preview" value="{% trans "Preview" %}" /></dd>
+  </dl>
+  </fieldset>
+  </form>
+  {% endif %}
+  {% endwith %}
+
+
+{% endblock %}
+
+{% block right-col %}
+
+{% render_author_links %}
+
+{% render_month_links %}
+
+{% render_tag_links %}
+
+{% endblock %}

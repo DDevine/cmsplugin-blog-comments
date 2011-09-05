@@ -1,5 +1,2 @@
-coverage
 Django==1.2.5
 django-cbv
-unittest-xml-reporting==1.2
--e git+http://github.com/HonzaKral/django-threadedcomments.git#egg=django-threadedcomments

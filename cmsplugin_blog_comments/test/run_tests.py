@@ -63,7 +63,7 @@ def run_tests():
         CMS_TEMPLATES = (
             ('default.html', 'default'),
         ),
-        ROOT_URLCONF='cmsplugin_blog.test.testapp.urls',
+        ROOT_URLCONF='cmsplugin_blog_comments.test.commentstestapp.urls',
         LANGUAGES=(('en', 'English'),('de','German'),('nb','Norwegian'),('nn','Norwegian Nynorsk')),
         JQUERY_UI_CSS='',
         JQUERY_JS='',

@@ -7,34 +7,25 @@ from django.contrib.auth.models import User
 from cms.models.placeholdermodel import Placeholder
 
 from cmsplugin_blog.test.testcases import BaseBlogTestCase
+from cmsplugin_blog.tests import SettingsOverride
 
-class NULL:
-    pass
-    
-class SettingsOverride(object):
-    """
-    Overrides Django settings within a context and resets them to their inital
-    values on exit.
-    Example:
-    with SettingsOverride(DEBUG=True):
-    # do something
-    """
-    
-    def __init__(self, **overrides):
-        self.overrides = overrides
-        
-    def __enter__(self):
-        self.old = {}
-        for key, value in self.overrides.items():
-            self.old[key] = getattr(settings, key, NULL)
-            setattr(settings, key, value)
-        
-    def __exit__(self, type, value, traceback):
-        for key, value in self.old.items():
-            if value is not NULL:
-                setattr(settings, key, value)
-            else:
-                delattr(settings,key) # do not pollute the context!
-                
 class BlogCommetsTestCase(BaseBlogTestCase):
-    pass
+    
+    def test_01_template_override(self):
+        user = User.objects.all()[0]
+        
+        published_at = datetime.datetime.now() - datetime.timedelta(hours=1)
+        title, entry = self.create_entry_with_title(published=True, 
+            published_at=published_at, author=user)
+        entry.tags = 'test'
+        entry.save()
+
+        response = self.client.get(reverse('en:blog_detail',
+            kwargs={
+                'year': published_at.strftime('%Y'),
+                'month': published_at.strftime('%m'),
+                'day': published_at.strftime('%d'),
+                'slug': title.slug
+            }))
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, u'Comments')

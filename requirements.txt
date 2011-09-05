@@ -1,0 +1,4 @@
+django-cms
+coverage
+unittest-xml-reporting==1.2
+-e git+http://github.com/HonzaKral/django-threadedcomments.git#egg=django-threadedcomments
