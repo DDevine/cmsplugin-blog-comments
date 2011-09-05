@@ -3,7 +3,7 @@ from django.db import models
 
 from cmsplugin_blog.models import AbstractEntryTitle
 
-class CommmentedEntryTitle(AbstractEntryTitle):
+class CommentedEntryTitle(AbstractEntryTitle):
 
     comments_enabled = models.BooleanField()
 

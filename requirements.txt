@@ -1,4 +1,5 @@
 django-cms
 coverage
 unittest-xml-reporting==1.2
+-e git+http://github.com/fivethreeo/cmsplugin-blog.git#egg=cmsplugin-blog
 -e git+http://github.com/HonzaKral/django-threadedcomments.git#egg=django-threadedcomments
