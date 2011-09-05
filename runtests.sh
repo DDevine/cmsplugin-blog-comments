@@ -48,7 +48,7 @@ case "${args[$index]}" in
             echo ""
             echo "flags:"
             echo " -r, --rebuild-env - delete virtualenv and rebuild virtualenv before the tests"
-            echo " -u, --update-requirements - update requrirements before the tests"
+            echo " -u, --update-requirements - update requirements before the tests"
             echo " -d, --django <version> - run tests against a django version, options: 12, 13 or trunk"
             echo " -c, --with-coverage - enables coverage"
             echo " -p, --python /path/to/python - python version to use to run the tests"
@@ -91,6 +91,7 @@ if [ $disable_coverage == false ]; then
 
     $venv/bin/coverage xml --rcfile=coveragerc
     $venv/bin/coverage html --rcfile=coveragerc
+    $venv/bin/coverage report -m --rcfile=coveragerc
 else
     $venv/bin/python setup.py test
     retcode=$?
